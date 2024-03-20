@@ -136,4 +136,4 @@ jobs:
           args: >
             -Dsonar.organization=${{ inputs.sonar-organization }}
             -Dsonar.projectKey=${{ inputs.sonar-projectKey }}
-            -Dsonar.sonar-project-properties-file=${{ inputs.sonar-project-properties-file }}
+            -Dproject.settings=${{ inputs.sonar-project-properties-file }}
