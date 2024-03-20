@@ -36,11 +36,6 @@ on:
         required: false
         default: 'true'
         type: string
-      sonar-project-properties-file:
-        description: 'Override the default value for coverage file if the default is not the right on'
-        required: false
-        default: ''
-        type: string
       node-version:
         description: "Version for NodeJS"
         required: false
@@ -55,6 +50,19 @@ on:
         required: false
         type: string
         default: 'sh install-dependencies.sh'
+      sonar-projectKey:
+        description: "Sonar Project Key"
+        required: true
+        type: string
+      sonar-organization:
+        description: "Sonar Organization"
+        required: true
+        type: string
+      sonar-project-properties-file:
+        description: 'Override the default value for coverage file if the default is not the right on'
+        required: false
+        default: ''
+        type: string
 
 jobs:
 
@@ -122,3 +130,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.sonar-project-properties-file=${{ inputs.sonar-project-properties-file }}
