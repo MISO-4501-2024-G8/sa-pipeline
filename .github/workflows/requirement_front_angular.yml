@@ -127,6 +127,8 @@ jobs:
           fetch-depth: 0 
       - name: List Files
         run: ls -R
+      - name: Print File Content
+        run: cat sonar-project-custom.properties
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
