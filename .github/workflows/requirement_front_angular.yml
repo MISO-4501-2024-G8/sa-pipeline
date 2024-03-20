@@ -132,4 +132,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -Dsonar.organization=${{ inputs.sonar-organization }}
+            -Dsonar.projectKey=${{ inputs.sonar-projectKey }}
             -Dsonar.sonar-project-properties-file=${{ inputs.sonar-project-properties-file }}
