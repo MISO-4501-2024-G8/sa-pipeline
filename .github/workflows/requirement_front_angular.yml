@@ -45,7 +45,7 @@ on:
         description: "Version for NodeJS"
         required: false
         type: string
-        default: "14.x"
+        default: "18.x"
       cache-name:
         description: "Cache Name"
         required: true
