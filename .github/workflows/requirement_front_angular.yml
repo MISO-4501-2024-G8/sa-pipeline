@@ -50,14 +50,6 @@ on:
         required: false
         type: string
         default: 'sh install-dependencies.sh'
-      sonar-projectKey:
-        description: "Sonar Project Key"
-        required: true
-        type: string
-      sonar-organization:
-        description: "Sonar Organization"
-        required: true
-        type: string
       sonar-project-properties-file:
         description: 'Override the default value for coverage file if the default is not the right on'
         required: false
@@ -141,6 +133,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=${{ inputs.sonar-organization }}
-            -Dsonar.projectKey=${{ inputs.sonar-projectKey }}
             -Dproject.settings=${{ inputs.sonar-project-properties-file }}
