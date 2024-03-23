@@ -16,24 +16,32 @@ on:
         required: true
 
 jobs:
-  deploy-frontend:
+  preview:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
       - name: Install dependencies and build Angular App
         run: |
           npm install
           npm run build
           cd dist
           ls -la
-      
-      - name: Deploy to S3
-        uses: jakejarvis/s3-sync-action@master
+      - uses: shallwefootball/s3-upload-action@master
+        name: Upload S3
+        id: S3
         with:
-          args: --acl public-read --follow-symlinks --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          source_dir: 'dist/${{ github.event.inputs.project-name }}'
+          destination_dir: ''
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target_url: https://aws-bucket.s3.ap-northeast-2.amazonaws.com/${{steps.S3.outputs.object_key}}/index.html
+          state: 'success'
+          deployment_id: ${{ steps.test.outputs.deployment_id }}  
