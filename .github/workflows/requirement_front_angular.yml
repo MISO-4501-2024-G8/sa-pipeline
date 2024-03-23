@@ -49,7 +49,7 @@ on:
         description: "Command for execute dev"
         required: false
         type: string
-        default: 'sh install-dependencies.sh'
+        default: 'npm install'
       sonar-project-properties-file:
         description: 'Override the default value for coverage file if the default is not the right on'
         required: false

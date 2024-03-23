@@ -26,6 +26,8 @@ jobs:
         run: |
           npm install
           npm run build
+          cd dist
+          ls -la
       
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
