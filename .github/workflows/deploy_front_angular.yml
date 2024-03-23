@@ -16,9 +16,21 @@ on:
         required: true
 
 jobs:
-  preview:
+  deploy-front:
     runs-on: ubuntu-latest
     steps:
+      - name: Print Secret Value AWS_ACCESS_KEY_ID
+        run: echo "El valor del secreto AWS_ACCESS_KEY_ID es ${{ secrets.AWS_ACCESS_KEY_ID }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      - name: Print Secret Value AWS_SECRET_ACCESS_KEY
+        run: echo "El valor del secreto AWS_SECRET_ACCESS_KEY es ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+      - name: Print Secret Value AWS_S3_BUCKET
+        run: echo "El valor del secreto AWS_S3_BUCKET es ${{ secrets.AWS_S3_BUCKET }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_BUCKET }}
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install dependencies and build Angular App
