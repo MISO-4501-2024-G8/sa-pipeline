@@ -7,6 +7,10 @@ on:
         description: 'Project name which is gonna be the project identifier in SonarCloud'
         required: true
         type: string
+      source_dir:
+        description: 'Source directory to upload to S3'
+        required: true
+        type: string
     secrets:
       AWS_S3_BUCKET:
         required: true
@@ -46,5 +50,5 @@ jobs:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_S3_BUCKET }}
-          source_dir: 'dist/${{ github.event.inputs.project-name }}/browser/'
+          source_dir: ${{ github.event.inputs.source_dir }}
           destination_dir: ''
