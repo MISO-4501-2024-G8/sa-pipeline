@@ -1,0 +1,37 @@
+name: Deploy Frontend
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        description: 'Project name which is gonna be the project identifier in SonarCloud'
+        required: true
+        type: string
+    secrets:
+      AWS_S3_BUCKET:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Install dependencies and build Angular App
+        run: |
+          npm install
+          npm run build -- --prod
+      
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
