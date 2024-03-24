@@ -141,4 +141,3 @@ jobs:
         with:
           args: >
             -Dproject.settings=${{ inputs.sonar-project-properties-file }}
-            -Dsonar.python.coverage.reportPaths=coverage.xml
