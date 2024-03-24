@@ -124,6 +124,8 @@ jobs:
         with:
           name: coverage
           path: coverage
+      - name: Move Coverage File to Root
+        run: mv coverage/coverage.xml ./
       - name: List Files
         run: ls -R
       - name: Print File Content
