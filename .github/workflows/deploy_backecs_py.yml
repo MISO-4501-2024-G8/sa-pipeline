@@ -70,14 +70,11 @@ jobs:
     - name: Create or update task definition
       run: |
         aws ecs register-task-definition --cli-input-json file://${{ inputs.task-definition-file }}
-    
-    - name: Create ECS service
-      run: |
-        aws ecs update-service \
-          --cluster ${{ inputs.cluster-name }} \
-          --service-name ${{ inputs.service-name }} \
-          --task-definition task_${{ inputs.ms-name }} \
-          --desired-count ${{ inputs.desired-count }} \
 
-
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        service: ${{ inputs.service-name }}
+        cluster: ${{ inputs.cluster-name }}
+        task-definition: task_${{ inputs.ms-name }}.json
 
