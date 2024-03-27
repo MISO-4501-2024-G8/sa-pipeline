@@ -76,5 +76,5 @@ jobs:
       with:
         service: ${{ inputs.service-name }}
         cluster: ${{ inputs.cluster-name }}
-        task-definition: task_${{ inputs.ms-name }}.json
+        task-definition: ${{ inputs.task-definition-file }}
 
