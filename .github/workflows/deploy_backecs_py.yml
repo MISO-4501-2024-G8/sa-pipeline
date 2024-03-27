@@ -65,6 +65,8 @@ jobs:
         docker build -t ${{ inputs.ms-name }} .
         docker tag ${{ inputs.ms-name }}:latest ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
         docker push ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
+    - name: List files
+      run: ls -la
     - name: Create or update task definition
       run: |
         aws ecs register-task-definition --cli-input-json file://${{ inputs.task-definition-file }}
