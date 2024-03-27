@@ -1,0 +1,52 @@
+name: Deploy to ECS
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        description: 'Project name which is gonna be the project identifier in SonarCloud'
+        required: true
+        type: string
+      aws-region:
+        description: 'AWS region'
+        required: true
+        type: string
+        default: 'us-east-1'
+      ecr-repo-url:
+        description: 'ECR repository name'
+        required: true
+        type: string
+      ms-name:
+        description: 'Microservice name'
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install AWS CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y awscli
+
+    - name: Configure AWS credentials
+      run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set region ${{ inputs.aws-region }}
+
+    - name: Build and push Docker image
+      run: |
+        aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ inputs.ecr-repo-url }}
+        docker build -t ${{ inputs.ms-name }} .
+        docker tag ${{ inputs.ms-name }}:latest ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
+        docker push ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
+
+
