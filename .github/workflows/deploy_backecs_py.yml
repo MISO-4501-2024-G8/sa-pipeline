@@ -35,8 +35,8 @@ on:
       desired-count:
         description: 'Desired count of tasks'
         required: false
-        type: string
-        default: '1'
+        type: number
+        default: 1
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
