@@ -76,7 +76,7 @@ jobs:
         aws ecs create-service \
           --cluster ${{ inputs.cluster-name }} \
           --service-name ${{ inputs.service-name }} \
-          --task-definition ${{ inputs.ms-name }} \
+          --task-definition task_${{ inputs.ms-name }} \
           --desired-count ${{ inputs.desired-count }}
 
 
