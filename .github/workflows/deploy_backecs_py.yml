@@ -20,6 +20,23 @@ on:
         description: 'Microservice name'
         required: true
         type: string
+      task-definition-file:
+        description: 'Task definition JSON file path'
+        required: true
+        type: string
+      cluster-name:
+        description: 'ECS cluster name'
+        required: true
+        type: string
+      service-name:
+        description: 'ECS service name'
+        required: true
+        type: string
+      desired-count:
+        description: 'Desired count of tasks'
+        required: false
+        type: string
+        default: '1'
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -48,5 +65,16 @@ jobs:
         docker build -t ${{ inputs.ms-name }} .
         docker tag ${{ inputs.ms-name }}:latest ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
         docker push ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
+    - name: Create or update task definition
+      run: |
+        aws ecs register-task-definition --cli-input-json file://${{ inputs.task-definition-file }}
+    
+    - name: Create ECS service
+      run: |
+        aws ecs create-service \
+          --cluster ${{ inputs.cluster-name }} \
+          --service-name ${{ inputs.service-name }} \
+          --task-definition ${{ inputs.ms-name }} \
+          --desired-count ${{ inputs.desired-count }}
 
 
