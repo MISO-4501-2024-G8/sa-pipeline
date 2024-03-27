@@ -1,4 +1,4 @@
-name: Requirements frontend
+name: Requirements frontend Web Angular
 
 on:
   workflow_call:

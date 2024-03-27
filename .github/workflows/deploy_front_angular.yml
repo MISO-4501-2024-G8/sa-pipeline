@@ -1,4 +1,4 @@
-name: Deploy Frontend
+name: Deploy Frontend Web Angular
 
 on:
   workflow_call:
