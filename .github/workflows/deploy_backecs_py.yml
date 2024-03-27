@@ -55,13 +55,20 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y awscli
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.aws-region }}
 
     - name: Configure AWS credentials
       run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set region ${{ inputs.aws-region }}
 
     - name: Build and push Docker image
       run: |
-        aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ inputs.ecr-repo-url }}
+        aws ecr-public get-login-password --region ${{ inputs.aws-region}} | docker login --username AWS --password-stdin ${{ inputs.ecr-repo-url }}
         docker build -t ${{ inputs.ms-name }} .
         docker tag ${{ inputs.ms-name }}:latest ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
         docker push ${{ inputs.ecr-repo-url }}/${{ inputs.ms-name }}:latest
@@ -74,7 +81,8 @@ jobs:
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
+        task-definition: ${{ inputs.task-definition-file }}
         service: ${{ inputs.service-name }}
         cluster: ${{ inputs.cluster-name }}
-        task-definition: ${{ inputs.task-definition-file }}
+        wait-for-service-stability: true
 
