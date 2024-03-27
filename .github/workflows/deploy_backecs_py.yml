@@ -77,6 +77,8 @@ jobs:
           --cluster ${{ inputs.cluster-name }} \
           --service-name ${{ inputs.service-name }} \
           --task-definition task_${{ inputs.ms-name }} \
-          --desired-count ${{ inputs.desired-count }}
+          --desired-count ${{ inputs.desired-count }} \
+          --network-configuration 'awsvpcConfiguration={subnets=[subnet-0c39d6a25408e5fea],securityGroups=[sg-0e7aa3219511e5032],assignPublicIp=ENABLED}'
+
 
 
