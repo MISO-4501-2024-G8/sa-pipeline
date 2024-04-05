@@ -133,7 +133,8 @@ jobs:
           else
             BRANCH_NAME="qa"
           fi
-          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_STATE
+          echo "::set-output name=branch_name::$BRANCH_NAME"
+        id: branch
       - name: List Files
         run: ls -R
       - name: Print File Content
@@ -146,4 +147,4 @@ jobs:
         with:
           args: >
             -Dproject.settings=${{ inputs.sonar-project-properties-file }}
-            -Dsonar.branch=${{ env.GITHUB_STATE.branch_name }}
+            -Dsonar.branch=${{steps.branch.outputs.branch_name }}
