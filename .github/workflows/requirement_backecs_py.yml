@@ -126,8 +126,15 @@ jobs:
         with:
           name: coverage
           path: coverage
-      - name: Obtener nombre de la rama
-        run: echo "La rama actual es $GITHUB_REF"
+      - name: Determinar nombre de la rama
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            BRANCH_NAME="main"
+          else
+            BRANCH_NAME="qa"
+          fi
+          echo "::set-output name=branch_name::$BRANCH_NAME"
+        id: branch
       - name: List Files
         run: ls -R
       - name: Print File Content
@@ -140,4 +147,4 @@ jobs:
         with:
           args: >
             -Dproject.settings=${{ inputs.sonar-project-properties-file }}
-            -Dsonar.branch=${{ github.ref }}
+            -Dsonar.branch=${{steps.branch.outputs.branch_name }}
