@@ -126,8 +126,6 @@ jobs:
         with:
           name: coverage
           path: coverage
-      - name: Move JUnitxml Coverage File to Root
-        run: mv coverage/pytest-report.xml ./
       - name: List Files
         run: ls -R
       - name: Print File Content
