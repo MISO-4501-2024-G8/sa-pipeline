@@ -1,0 +1,150 @@
+name: Requirements Back ECS Python
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: "Type of machine to run"
+        type: string
+        default: ubuntu-latest
+        required: false
+      project-name:
+        description: 'Project name which is gonna be the project identifier in SonarCloud'
+        required: true
+        type: string
+      project-key:
+        description: 'Project key which is gonna be the project identifier in SonarCloud'
+        required: true
+        type: string
+      organization:
+        description: 'SonarCloud organization'
+        required: false
+        default: 'MISO-4501-2024-G8'
+        type: string
+      language:
+        description: 'The language used to be analyzed'
+        required: true
+        default: ''
+        type: string
+      python-version:
+        description: "Version for Python"
+        required: false
+        type: string
+        default: "3.8"
+      cache-name:
+        description: "Cache Name"
+        required: true
+        type: string
+      sonar-project-properties-file:
+        description: 'Override the default value for coverage file if the default is not the right on'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+
+  dev-dependencies:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Restore cache
+        uses: actions/cache@v2
+        env:
+          cache-name: ${{ inputs.cache-name }}
+        with:
+          path: lib
+          key: lib-${{ inputs.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: lib-${{ inputs.cache-name }}
+      - name: Install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          deactivate
+      - name: Verificate Dependencies
+        run: |
+          source venv/bin/activate
+          python -m pip list
+      - name: Persist Data
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path:  |
+            app
+  test:
+    runs-on: ubuntu-latest
+    needs: [ dev-dependencies ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Restore cache
+        uses: actions/cache@v2
+        env:
+          cache-name: ${{ inputs.cache-name }}
+        with:
+          path: lib
+          key: lib-${{ inputs.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: lib-${{ inputs.cache-name }}
+      - name: Running Test
+        run: |
+          ls -la
+          python3 -m venv venv
+          source venv/bin/activate
+          pip3 install -r requirements.txt
+          pytest --cov=app/ --cov-report xml --junitxml=pytest-report.xml
+          coverage xml
+          deactivate
+      - name: Persist Data
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: |
+            .coverage
+            coverage.xml
+            pytest-report.xml
+          retention-days: 1
+
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Restore Coverage
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage
+          path: coverage
+      - name: Determinar nombre de la rama
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            BRANCH_NAME="main"
+          else
+            BRANCH_NAME="qa"
+          fi
+          echo "::set-output name=branch_name::$BRANCH_NAME"
+        id: branch
+      - name: List Files
+        run: ls -R
+      - name: Print File Content
+        run: cat sonar-project-custom.properties
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dproject.settings=${{ inputs.sonar-project-properties-file }}
+            -Dsonar.branch=${{steps.branch.outputs.branch_name }}

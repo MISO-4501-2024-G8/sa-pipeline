@@ -1,0 +1,54 @@
+name: Deploy Frontend Web Angular
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        description: 'Project name which is gonna be the project identifier in SonarCloud'
+        required: true
+        type: string
+      source_dir:
+        description: 'Source directory to upload to S3'
+        required: true
+        type: string
+    secrets:
+      AWS_S3_BUCKET:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy-front:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Secret Value AWS_ACCESS_KEY_ID
+        run: echo "El valor del secreto AWS_ACCESS_KEY_ID es ${{ secrets.AWS_ACCESS_KEY_ID }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      - name: Print Secret Value AWS_SECRET_ACCESS_KEY
+        run: echo "El valor del secreto AWS_SECRET_ACCESS_KEY es ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        env:
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+      - name: Print Secret Value AWS_S3_BUCKET
+        run: echo "El valor del secreto AWS_S3_BUCKET es ${{ secrets.AWS_S3_BUCKET }}"
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install dependencies and build Angular App
+        run: |
+          npm install
+          npm run build
+          cd dist
+          ls -la
+      - uses: shallwefootball/s3-upload-action@master
+        name: Upload S3
+        id: S3
+        with:
+          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          source_dir: ${{ inputs.source_dir }}
+          destination_dir: ''
